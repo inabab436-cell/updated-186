@@ -3,7 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ShoppingBag, ShoppingCart, X, Send, Info, Truck, PhoneCall, ScrollText, MessageSquare, UserCircle2 } from "lucide-react";
+import { ShoppingBag, ShoppingCart, X, Send, Info, Truck, PhoneCall, ScrollText, MessageSquare, UserCircle2, Flame, Tag } from "lucide-react";
+import { bestOfferPlan, type OfferPlan } from "@/lib/product-offer-badge";
+
+/** Below this many pieces the card switches to a scarcity line. */
+const LOW_STOCK_THRESHOLD = 5;
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -352,6 +356,72 @@ function variantKey(color: string | null, size: string | null) {
   return `${color ?? ""}|${size ?? ""}`;
 }
 
+/**
+ * The offer, shown UNDER the product itself (not only in the cart): the saving
+ * the customer gets now, or the exact quantity that unlocks it — one tap away.
+ * Numbers are previews; the order is priced again on the server.
+ */
+function ProductOfferBox({
+  plan, currency, quantity, onPickQty,
+}: {
+  plan: OfferPlan;
+  currency: string;
+  quantity: number;
+  onPickQty: (n: number) => void;
+}) {
+  const o = plan.offer;
+  const show = (k: string) => (o.display_fields ?? []).includes(k);
+  const nearMiss = !plan.qualifies && plan.reachable && plan.discountAtUnits > 0;
+  return (
+    <div className="space-y-1 rounded-lg border border-destructive/30 bg-destructive/5 p-2 text-xs">
+      <div className="flex items-center gap-1.5 font-semibold text-destructive">
+        <Tag className="h-3.5 w-3.5" />
+        <span>{show("title") && o.title ? o.title : plan.badge}</span>
+      </div>
+      {plan.qualifies && plan.discountNow > 0 && (
+        <div className="text-foreground">
+          وفّرت {plan.discountNow} {currency} على {quantity} {quantity === 1 ? "قطعة" : "قطع"} — الإجمالي {plan.totalNow} {currency}
+        </div>
+      )}
+      {nearMiss && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span>
+            اشترِ {plan.unitsNeeded} {plan.unitsNeeded === 1 ? "قطعة" : "قطع"} ({plan.subtotalAtUnits} {currency}) وتوفّر {plan.discountAtUnits} {currency} — الإجمالي {plan.totalAtUnits} {currency}
+          </span>
+          <button
+            type="button"
+            onClick={() => onPickQty(plan.unitsNeeded)}
+            className="rounded-full bg-destructive px-2 py-0.5 font-semibold text-destructive-foreground"
+          >
+            اجعلها {plan.unitsNeeded}
+          </button>
+        </div>
+      )}
+      {show("countdown") && o.ends_at && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>ينتهي خلال</span><OfferCountdown endsAt={o.ends_at} />
+        </div>
+      )}
+      {show("remaining") && o.remaining != null && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>المتبقي من العرض</span><span>{o.remaining}</span>
+        </div>
+      )}
+      {show("usage_type") && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>نوع الاستخدام</span>
+          <span>{o.usage_limit_type === "once_per_customer" ? "مرة واحدة لكل عميل" : "على كل أوردر"}</span>
+        </div>
+      )}
+      {show("min_order_total") && o.min_order_total != null && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>الحد الأدنى للطلب</span><span>{o.min_order_total} {currency}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProductCard({ product, theme }: { product: StorefrontData["products"][number]; theme?: any }) {
   const cart = useCart();
   const variants: VariantLike[] = Array.isArray(product.variants) ? product.variants : [];
@@ -395,6 +465,16 @@ function ProductCard({ product, theme }: { product: StorefrontData["products"][n
   const primary = theme?.primary ?? "hsl(var(--primary))";
   const accent = theme?.accent ?? primary;
   const outOfStock = anyStockInfo && (inStock.length === 0 || (selectedStock ?? 0) <= 0);
+
+  // Offer shown ON the card (display only — the real price comes from the server).
+  const plan = bestOfferPlan(product.offers ?? [], {
+    unitPrice: Number(unitPrice ?? 0),
+    quantity: clampedQty,
+    stock: selectedStock,
+    currency: product.currency,
+  });
+  const cur = product.currency ?? "";
+  const showLow = selectedStock != null && selectedStock > 0 && selectedStock <= LOW_STOCK_THRESHOLD;
   return (
     <article
       className="group flex flex-col overflow-hidden rounded-2xl border bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-glow"
@@ -408,16 +488,29 @@ function ProductCard({ product, theme }: { product: StorefrontData["products"][n
             <ShoppingBag className="h-10 w-10" style={{ color: `${primary}55` }} />
           </div>
         )}
+        {plan && (
+          <span className="absolute right-2 top-2 rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-destructive-foreground shadow">
+            {plan.badge}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-semibold leading-tight" style={{ color: primary }}>{product.name}</h3>
           {unitPrice != null && (
-            <span className="shrink-0 rounded-full px-2 py-0.5 text-sm font-semibold text-white" style={{ background: accent }}>
-              {unitPrice} {product.currency ?? ""}
+            <span className="flex shrink-0 items-center gap-1.5">
+              {plan?.qualifies && plan.discountNow > 0 && (
+                <span className="text-xs text-muted-foreground line-through">{unitPrice} {cur}</span>
+              )}
+              <span className="rounded-full px-2 py-0.5 text-sm font-semibold text-white" style={{ background: accent }}>
+                {plan?.qualifies && plan.discountNow > 0 ? plan.unitPriceNow : unitPrice} {cur}
+              </span>
             </span>
           )}
         </div>
+        {plan && (
+          <ProductOfferBox plan={plan} currency={cur} quantity={clampedQty} onPickQty={(n) => setQty(n)} />
+        )}
         {product.category && (
           <div className="text-xs text-muted-foreground">{product.category}</div>
         )}
@@ -455,9 +548,16 @@ function ProductCard({ product, theme }: { product: StorefrontData["products"][n
           </div>
         )}
         {selectedStock != null && (
-          <div className="text-xs" style={{ color: selectedStock > 0 ? `${primary}aa` : "hsl(var(--destructive))" }}>
-            {selectedStock > 0 ? `المتاح حالياً: ${selectedStock}` : "غير متوفر حالياً"}
-          </div>
+          showLow ? (
+            <div className="flex items-center gap-1 text-xs font-semibold text-destructive">
+              <Flame className="h-3.5 w-3.5" />
+              متبقي {selectedStock} {selectedStock === 1 ? "قطعة" : "قطع"} فقط
+            </div>
+          ) : (
+            <div className="text-xs" style={{ color: selectedStock > 0 ? `${primary}aa` : "hsl(var(--destructive))" }}>
+              {selectedStock > 0 ? `المتاح حالياً: ${selectedStock}` : "غير متوفر حالياً"}
+            </div>
+          )
         )}
         <div className="mt-auto flex items-center gap-2 pt-2">
           <label className="flex items-center gap-1 text-xs text-muted-foreground">

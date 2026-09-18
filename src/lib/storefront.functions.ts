@@ -7,10 +7,14 @@
 import { fuzzyPick } from "./fuzzy-match";
 import { createServerFn } from "@tanstack/react-start";
 
+import type { ProductOffer } from "./product-offer-badge";
+
 export interface StorefrontProduct {
   id: string; name: string; description: string | null;
   category: string | null; price: number | null; currency: string | null;
   images: string[]; variants: any[];
+  /** Live offers that apply to THIS product right now (display only). */
+  offers: ProductOffer[];
 }
 export interface StorefrontPolicy {
   id: string; kind: string; title: string; content: string;
@@ -106,6 +110,28 @@ export const getStorefront = createServerFn({ method: "GET" })
       productRows.map((p: any) => String(p.id)),
     );
 
+    // Live offers, read with the SAME rules the agent uses (active, inside the
+    // window, not sold out). Display only — the price is still decided by the
+    // server quote and recomputed at order creation.
+    const { loadOffers } = await import("@/lib/offers.server");
+    const { remainingSeats, offerDisplayFields } = await import("@/lib/manual-order-offers.server");
+    const liveOffers = (await loadOffers(admin as any, userId)).live;
+    const offersFor = (productId: string) =>
+      liveOffers
+        .filter((o) => o.scope === "all" || String(o.product_id ?? "") === productId)
+        .map((o) => ({
+          offer_id: o.id,
+          title: o.title,
+          scope: o.scope,
+          discount_type: o.discount_type,
+          discount_value: o.discount_value,
+          min_order_total: o.min_order_total,
+          ends_at: o.ends_at,
+          remaining: remainingSeats(o),
+          usage_limit_type: o.usage_limit_type,
+          display_fields: offerDisplayFields(o) as string[],
+        }));
+
     const products: StorefrontProduct[] = await Promise.all(productRows.map(async (p: any) => {
       const raw: string[] = [];
       if (Array.isArray(p.images)) for (const x of p.images) {
@@ -130,6 +156,7 @@ export const getStorefront = createServerFn({ method: "GET" })
         description: p.description ?? null, category: p.category ?? null,
         price: p.price ?? null, currency: p.currency ?? null,
         images, variants,
+        offers: offersFor(String(p.id)),
       };
     }));
 
