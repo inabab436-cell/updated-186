@@ -356,6 +356,72 @@ function variantKey(color: string | null, size: string | null) {
   return `${color ?? ""}|${size ?? ""}`;
 }
 
+/**
+ * The offer, shown UNDER the product itself (not only in the cart): the saving
+ * the customer gets now, or the exact quantity that unlocks it — one tap away.
+ * Numbers are previews; the order is priced again on the server.
+ */
+function ProductOfferBox({
+  plan, currency, quantity, onPickQty,
+}: {
+  plan: OfferPlan;
+  currency: string;
+  quantity: number;
+  onPickQty: (n: number) => void;
+}) {
+  const o = plan.offer;
+  const show = (k: string) => (o.display_fields ?? []).includes(k);
+  const nearMiss = !plan.qualifies && plan.reachable && plan.discountAtUnits > 0;
+  return (
+    <div className="space-y-1 rounded-lg border border-destructive/30 bg-destructive/5 p-2 text-xs">
+      <div className="flex items-center gap-1.5 font-semibold text-destructive">
+        <Tag className="h-3.5 w-3.5" />
+        <span>{show("title") && o.title ? o.title : plan.badge}</span>
+      </div>
+      {plan.qualifies && plan.discountNow > 0 && (
+        <div className="text-foreground">
+          وفّرت {plan.discountNow} {currency} على {quantity} {quantity === 1 ? "قطعة" : "قطع"} — الإجمالي {plan.totalNow} {currency}
+        </div>
+      )}
+      {nearMiss && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span>
+            اشترِ {plan.unitsNeeded} {plan.unitsNeeded === 1 ? "قطعة" : "قطع"} ({plan.subtotalAtUnits} {currency}) وتوفّر {plan.discountAtUnits} {currency} — الإجمالي {plan.totalAtUnits} {currency}
+          </span>
+          <button
+            type="button"
+            onClick={() => onPickQty(plan.unitsNeeded)}
+            className="rounded-full bg-destructive px-2 py-0.5 font-semibold text-destructive-foreground"
+          >
+            اجعلها {plan.unitsNeeded}
+          </button>
+        </div>
+      )}
+      {show("countdown") && o.ends_at && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>ينتهي خلال</span><OfferCountdown endsAt={o.ends_at} />
+        </div>
+      )}
+      {show("remaining") && o.remaining != null && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>المتبقي من العرض</span><span>{o.remaining}</span>
+        </div>
+      )}
+      {show("usage_type") && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>نوع الاستخدام</span>
+          <span>{o.usage_limit_type === "once_per_customer" ? "مرة واحدة لكل عميل" : "على كل أوردر"}</span>
+        </div>
+      )}
+      {show("min_order_total") && o.min_order_total != null && (
+        <div className="flex justify-between gap-2 text-muted-foreground">
+          <span>الحد الأدنى للطلب</span><span>{o.min_order_total} {currency}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function ProductCard({ product, theme }: { product: StorefrontData["products"][number]; theme?: any }) {
   const cart = useCart();
   const variants: VariantLike[] = Array.isArray(product.variants) ? product.variants : [];
