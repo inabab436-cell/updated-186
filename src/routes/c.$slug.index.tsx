@@ -418,16 +418,27 @@ function ProductCard({ product, theme }: { product: StorefrontData["products"][n
             <ShoppingBag className="h-10 w-10" style={{ color: `${primary}55` }} />
           </div>
         )}
+        {plan && (
+          <span className="absolute right-2 top-2 rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-destructive-foreground shadow">
+            {plan.badge}
+          </span>
+        )}
       </div>
       <div className="flex flex-1 flex-col gap-2 p-4">
         <div className="flex items-start justify-between gap-2">
           <h3 className="text-base font-semibold leading-tight" style={{ color: primary }}>{product.name}</h3>
           {unitPrice != null && (
-            <span className="shrink-0 rounded-full px-2 py-0.5 text-sm font-semibold text-white" style={{ background: accent }}>
-              {unitPrice} {product.currency ?? ""}
+            <span className="flex shrink-0 items-center gap-1.5">
+              {plan?.qualifies && plan.discountNow > 0 && (
+                <span className="text-xs text-muted-foreground line-through">{unitPrice} {cur}</span>
+              )}
+              <span className="rounded-full px-2 py-0.5 text-sm font-semibold text-white" style={{ background: accent }}>
+                {plan?.qualifies && plan.discountNow > 0 ? plan.unitPriceNow : unitPrice} {cur}
+              </span>
             </span>
           )}
         </div>
+        {plan && <ProductOfferBox plan={plan} currency={cur} onPickQty={(n) => setQty(n)} />
         {product.category && (
           <div className="text-xs text-muted-foreground">{product.category}</div>
         )}
