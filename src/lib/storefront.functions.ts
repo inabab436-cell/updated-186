@@ -7,10 +7,14 @@
 import { fuzzyPick } from "./fuzzy-match";
 import { createServerFn } from "@tanstack/react-start";
 
+import type { ProductOffer } from "./product-offer-badge";
+
 export interface StorefrontProduct {
   id: string; name: string; description: string | null;
   category: string | null; price: number | null; currency: string | null;
   images: string[]; variants: any[];
+  /** Live offers that apply to THIS product right now (display only). */
+  offers: ProductOffer[];
 }
 export interface StorefrontPolicy {
   id: string; kind: string; title: string; content: string;
