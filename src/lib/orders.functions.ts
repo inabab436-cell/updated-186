@@ -124,7 +124,7 @@ export const getEarningsSummary = createServerFn({ method: "GET" }).handler(
   async (): Promise<EarningsSummary> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("orders");
+    const { userId } = await requireUserId("earnings");
     const merchantId = await getMerchantId(userId);
     if (!merchantId) return { orderCount: 0, totalProfit: 0, pendingProfit: 0, currency: "" };
     const admin = getSupabaseAdmin();

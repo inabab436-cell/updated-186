@@ -18,7 +18,7 @@ export const listPolicies = createServerFn({ method: "GET" }).handler(
   async (): Promise<PolicyDTO[]> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("policies");
     const admin = getSupabaseAdmin();
     const { data, error } = await admin.from("policies").select("*")
       .eq("user_id", userId).order("kind").order("created_at", { ascending: false });
@@ -35,7 +35,7 @@ export const upsertPolicy = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("policies");
     const admin = getSupabaseAdmin();
     let policyId = data.id ?? "";
     if (data.id) {
@@ -68,7 +68,7 @@ export const deletePolicy = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("policies");
     const admin = getSupabaseAdmin();
     const { error } = await admin.from("policies").delete()
       .eq("id", data.id).eq("user_id", userId);
@@ -88,7 +88,7 @@ export const listShippingRates = createServerFn({ method: "GET" }).handler(
   async (): Promise<ShippingRateDTO[]> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("shipping");
     const admin = getSupabaseAdmin();
     const { data, error } = await admin.from("shipping_rates").select("*")
       .eq("user_id", userId).order("country", { nullsFirst: false }).order("region", { nullsFirst: false });
@@ -102,7 +102,7 @@ export const upsertShippingRate = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("shipping");
     const admin = getSupabaseAdmin();
     const patch = {
       country: data.country ?? null, region: data.region ?? null,
@@ -145,7 +145,7 @@ export const deleteShippingRate = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("shipping");
     const admin = getSupabaseAdmin();
     const { error } = await admin.from("shipping_rates").delete()
       .eq("id", data.id).eq("user_id", userId);
@@ -163,7 +163,7 @@ export const listContactInfo = createServerFn({ method: "GET" }).handler(
   async (): Promise<ContactInfoDTO[]> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("contacts");
     const admin = getSupabaseAdmin();
     const { data, error } = await admin.from("contact_info").select("*")
       .eq("user_id", userId).order("kind").order("created_at", { ascending: false });
@@ -180,7 +180,7 @@ export const upsertContactInfo = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("contacts");
     const admin = getSupabaseAdmin();
     let contactId = data.id ?? "";
     if (data.id) {
@@ -212,7 +212,7 @@ export const deleteContactInfo = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId("contacts");
     const admin = getSupabaseAdmin();
     const { error } = await admin.from("contact_info").delete()
       .eq("id", data.id).eq("user_id", userId);
