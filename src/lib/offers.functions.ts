@@ -79,7 +79,7 @@ export const listOffers = createServerFn({ method: "GET" }).handler(
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { mapOfferRow, isLive, hasEnded } = await import("@/lib/offers.server");
     const { loadPendingOfferUsage } = await import("@/lib/offer-pending.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("offers");
     const admin = getSupabaseAdmin();
 
     const { data, error } = await admin
@@ -173,7 +173,7 @@ export const saveOffer = createServerFn({ method: "POST" })
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { mapOfferRow, isLive, buildBroadcastMessage } = await import("@/lib/offers.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("offers");
     const admin = getSupabaseAdmin();
 
     const title = String(data.title ?? "").trim();
@@ -299,7 +299,7 @@ export const deleteOffer = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("offers");
     const admin = getSupabaseAdmin();
     const { error } = await admin
       .from("offers")

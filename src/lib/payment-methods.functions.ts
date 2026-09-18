@@ -121,7 +121,7 @@ export const listPaymentMethods = createServerFn({ method: "GET" }).handler(
   async (): Promise<PaymentMethod[]> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("payments");
     const admin = getSupabaseAdmin();
 
     const { data, error } = await admin
@@ -155,7 +155,7 @@ export const createPaymentMethod = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<PaymentMethod> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("payments");
     const admin = getSupabaseAdmin();
 
     const { count } = await admin
@@ -205,7 +205,7 @@ export const updatePaymentMethod = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("payments");
     const admin = getSupabaseAdmin();
 
     const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
@@ -260,7 +260,7 @@ export const deletePaymentMethod = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ ok: true }> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("payments");
     const admin = getSupabaseAdmin();
     const { error } = await admin
       .from("payment_methods")
