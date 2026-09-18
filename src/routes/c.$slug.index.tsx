@@ -438,7 +438,9 @@ function ProductCard({ product, theme }: { product: StorefrontData["products"][n
             </span>
           )}
         </div>
-        {plan && <ProductOfferBox plan={plan} currency={cur} onPickQty={(n) => setQty(n)} />
+        {plan && (
+          <ProductOfferBox plan={plan} currency={cur} quantity={clampedQty} onPickQty={(n) => setQty(n)} />
+        )}
         {product.category && (
           <div className="text-xs text-muted-foreground">{product.category}</div>
         )}
