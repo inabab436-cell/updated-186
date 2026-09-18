@@ -156,6 +156,7 @@ export const getStorefront = createServerFn({ method: "GET" })
         description: p.description ?? null, category: p.category ?? null,
         price: p.price ?? null, currency: p.currency ?? null,
         images, variants,
+        offers: offersFor(String(p.id)),
       };
     }));
 
