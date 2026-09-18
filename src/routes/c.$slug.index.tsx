@@ -478,9 +478,16 @@ function ProductCard({ product, theme }: { product: StorefrontData["products"][n
           </div>
         )}
         {selectedStock != null && (
-          <div className="text-xs" style={{ color: selectedStock > 0 ? `${primary}aa` : "hsl(var(--destructive))" }}>
-            {selectedStock > 0 ? `المتاح حالياً: ${selectedStock}` : "غير متوفر حالياً"}
-          </div>
+          showLow ? (
+            <div className="flex items-center gap-1 text-xs font-semibold text-destructive">
+              <Flame className="h-3.5 w-3.5" />
+              متبقي {selectedStock} {selectedStock === 1 ? "قطعة" : "قطع"} فقط
+            </div>
+          ) : (
+            <div className="text-xs" style={{ color: selectedStock > 0 ? `${primary}aa` : "hsl(var(--destructive))" }}>
+              {selectedStock > 0 ? `المتاح حالياً: ${selectedStock}` : "غير متوفر حالياً"}
+            </div>
+          )
         )}
         <div className="mt-auto flex items-center gap-2 pt-2">
           <label className="flex items-center gap-1 text-xs text-muted-foreground">
