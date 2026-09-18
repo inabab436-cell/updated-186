@@ -81,7 +81,7 @@ export const submitManualEntry = createServerFn({ method: "POST" })
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolveMerchantIdByUser } = await import("@/lib/merchant-data.server");
-    const { userId } = await requireUserId();
+    const { userId } = await requireUserId("orders");
     const admin = getSupabaseAdmin();
     const merchantId = await resolveMerchantIdByUser(admin, userId);
     if (!merchantId) throw new Error("لا يوجد متجر لهذا الحساب.");
