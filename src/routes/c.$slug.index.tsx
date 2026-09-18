@@ -3,7 +3,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { ShoppingBag, ShoppingCart, X, Send, Info, Truck, PhoneCall, ScrollText, MessageSquare, UserCircle2 } from "lucide-react";
+import { ShoppingBag, ShoppingCart, X, Send, Info, Truck, PhoneCall, ScrollText, MessageSquare, UserCircle2, Flame, Tag } from "lucide-react";
+import { bestOfferPlan, type OfferPlan } from "@/lib/product-offer-badge";
+
+/** Below this many pieces the card switches to a scarcity line. */
+const LOW_STOCK_THRESHOLD = 5;
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
