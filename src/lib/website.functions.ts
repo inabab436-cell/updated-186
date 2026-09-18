@@ -61,7 +61,7 @@ async function loadState(userId: string): Promise<SiteState> {
 export const getSiteState = createServerFn({ method: "GET" }).handler(
   async (): Promise<SiteState> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     return loadState(userId);
   },
 );
@@ -76,7 +76,7 @@ export const createWebsite = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<SiteState> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
 
     const base = slugify(data.brand_name) || "store";
@@ -113,7 +113,7 @@ export const publishSite = createServerFn({ method: "POST" }).handler(
   async (): Promise<SiteState> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
     const state = await loadState(userId);
     if (!state.site_created) throw new Error("Create the website first.");
@@ -130,7 +130,7 @@ export const unpublishSite = createServerFn({ method: "POST" }).handler(
   async (): Promise<SiteState> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
     const { error } = await admin
       .from("merchants")
@@ -159,7 +159,7 @@ export const updateWebsiteIdentity = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<SiteState> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
 
     const patch: Record<string, unknown> = { updated_at: new Date().toISOString() };
@@ -229,7 +229,7 @@ export const uploadWebsiteLogo = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ url: string }> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
 
     const BUCKET = "site-logo";

@@ -24,7 +24,7 @@ export const listKnowledgeBase = createServerFn({ method: "GET" }).handler(
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolveMerchantIdByUser } = await import("@/lib/merchant-data.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
     const merchantId = await resolveMerchantIdByUser(admin, userId);
     if (!merchantId) return [];
@@ -54,7 +54,7 @@ export const upsertKnowledgeBaseEntry = createServerFn({ method: "POST" })
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolveMerchantIdByUser } = await import("@/lib/merchant-data.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
     const merchantId = await resolveMerchantIdByUser(admin, userId);
     if (!merchantId) invalid("No store found for this account.");
@@ -98,7 +98,7 @@ export const deleteKnowledgeBaseEntry = createServerFn({ method: "POST" })
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolveMerchantIdByUser } = await import("@/lib/merchant-data.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
     const merchantId = await resolveMerchantIdByUser(admin, userId);
     if (!merchantId) invalid("No store found for this account.");

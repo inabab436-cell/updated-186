@@ -51,7 +51,7 @@ export const addVariantStock = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ quantity: number }> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("products");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
 
     const { data: product } = await admin
@@ -97,7 +97,7 @@ export const createManualProduct = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ productId: string; colors: { id: string; label: string }[] }> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("products");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
 
     const name = String(data.name ?? "").trim();

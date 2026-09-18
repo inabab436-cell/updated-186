@@ -29,7 +29,7 @@ export const getMissingInfoTopic = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ topicId: z.string().uuid() }).parse(d))
   .handler(async ({ data }): Promise<MissingInfoTopicDetail> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId();
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = getSupabaseAdmin();
 
@@ -123,7 +123,7 @@ export const getFollowupRecipients = createServerFn({ method: "GET" })
   .inputValidator((d: unknown) => z.object({ topicId: z.string().uuid() }).parse(d))
   .handler(async ({ data }): Promise<FollowupSummary> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId();
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const admin = getSupabaseAdmin();
 
@@ -211,7 +211,7 @@ export interface MissingInfoOverviewRow {
 export const listMissingInfoTopics = createServerFn({ method: "GET" }).handler(
   async (): Promise<MissingInfoOverviewRow[]> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
-    const { userId } = await requireUserId("knowledge");
+    const { userId } = await requireUserId();
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { resolveMerchantIdByUser } = await import("@/lib/merchant-data.server");
     const admin = getSupabaseAdmin();

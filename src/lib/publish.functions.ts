@@ -29,7 +29,7 @@ export const setPublished = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
     const { error } = await admin.from(data.table).update({
       is_published: data.is_published,
@@ -69,7 +69,7 @@ export const listPublished = createServerFn({ method: "GET" }).handler(
   }> => {
     const { requireUserId } = await import("@/lib/session-guard.server");
     const { getSupabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { userId } = await requireUserId("website");
+    const { userId } = await requireUserId();
     const admin = getSupabaseAdmin();
     const [p, pol, c, sh] = await Promise.all([
       admin.from("products").select("id,name,description,category,price,currency,images,variants,published_at")

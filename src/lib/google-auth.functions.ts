@@ -51,21 +51,6 @@ export const googleSignInMerchant = createServerFn({ method: "POST" })
 
     const { ensureProfile, getSetupCompleted } = await import("@/lib/profile.server");
     await ensureProfile(user.id);
-
-    // An invited staff member joins the owner's store instead of onboarding.
-    const { linkStaffByEmail, resolveStaffAccess } = await import("@/lib/staff.server");
-    await linkStaffByEmail(user.id, user.email);
-    const access = await resolveStaffAccess(user.id, user.email);
-    if (!access.isOwner) {
-      return {
-        ok: true,
-        message: "تم تسجيل الدخول.",
-        email: user.email,
-        setupCompleted: true,
-        nextRoute: "/dashboard",
-      };
-    }
-
     const setupCompleted = await getSetupCompleted(user.id);
 
     return {
