@@ -395,6 +395,16 @@ function ProductCard({ product, theme }: { product: StorefrontData["products"][n
   const primary = theme?.primary ?? "hsl(var(--primary))";
   const accent = theme?.accent ?? primary;
   const outOfStock = anyStockInfo && (inStock.length === 0 || (selectedStock ?? 0) <= 0);
+
+  // Offer shown ON the card (display only — the real price comes from the server).
+  const plan = bestOfferPlan(product.offers ?? [], {
+    unitPrice: Number(unitPrice ?? 0),
+    quantity: clampedQty,
+    stock: selectedStock,
+    currency: product.currency,
+  });
+  const cur = product.currency ?? "";
+  const showLow = selectedStock != null && selectedStock > 0 && selectedStock <= LOW_STOCK_THRESHOLD;
   return (
     <article
       className="group flex flex-col overflow-hidden rounded-2xl border bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-glow"
